@@ -1,0 +1,205 @@
+[复习]
+
+设置国内镜像安装源（清华大学）安装django
+
+pip install django -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
+创建django项目 mysite
+创建django应用 blog
+在项目目录中settings.py 文件，找到 INSTALLED_APPS，然后添blog到项目
+
+数据库登录账号：root
+密码：root123
+
+1、复习数据库的创建
+create database blog default charset=utf8;
+
+
+2、复习中文汉化
+    LANGUAGE_CODE="zh-hans"
+    TIME_ZONE = 'Asia/Shanghai'
+
+
+3、复习连接mysql数据库（个别安装mysql)
+settings.py 这里是有管理数据库位置DATABASES，配置当前mysql数据库
+'default': {
+        'ENGINE': 'django.db.backends.mysql',  # 连接引擎
+        'NAME': 'django',                      # 数据库名
+        'HOST': '127.0.0.1',                   # 连接数据库IP
+        'PORT': '3306',                        # 默认mysql端口号
+        'USER': 'root',                        # 账号
+        'PASSWORD': 'root123'                  # 密码
+    }
+
+*提示：是否已经安装了pymysql库？
+pip install pymysql -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
+*在项目的__init__.py 进行配置mysql
+import pymysql
+pymysql.install_as_MySQLdb()
+
+* 数据库的备份和恢复
+方法1：使用电脑软件（sqlyog)
+方法2：命令行 mysqldump
+
+
+4、设计数据表
+
+title  content   create_date 
+标题    内容        创建时间
+
+
+from django.db import models
+from datetime import datetime
+
+
+class Blog_list(models.Model):
+    # 在表格名Index，字段有一个name
+    title = models.CharField(max_length=30, verbose_name="标题")
+    context = models.TextField(max_length=1024, verbose_name="内容")
+    create_date = models.DateTimeField(verbose_name="创建日期", default=datetime.now)
+
+
+
+5、同步数据，提交数据变化
+执行下面的命令：(同步数据)
+python .\manage.py migrate
+
+再执行下面的命令：（执行保存所有数据）
+ python .\manage.py makemigrations
+
+
+6、创建超级用户，添加相关数据
+创建超级用户的账号和密码命令：
+python manage.py createsuperuser
+登录地址：
+127.0.0.1/admin
+
+
+7、在应用 blog 找到 views.py
+
+from django.shortcuts import render
+# 在应用当中导入数据模块
+from blog.models import Blog_list
+# 加载模块方法 loader
+from django.shortcuts import loader
+# HTTP 方法
+from django.shortcuts import HttpResponse
+
+# Create your views here.
+# 视图
+
+# 显示博文内容
+def Bloglist(request):
+    # 按创建时间来查询所有文章，保存在Blog_list变量
+    blog_list = Blog_list.objects.order_by('create_date')
+    # 模板
+    template = loader.get_template('list.html')
+    # 向模板页送数据
+    context = {'blog_list': blog_list}
+
+    # 渲染出去
+    return HttpResponse(template.render(context))
+
+
+
+8、 在应用 blog里面创建一个模板目录 templates
+9、在应用 blog里面admin.py
+进行添加以下内容：
+
+from django.contrib import admin
+from blog.models import Blog_list
+# Register your models here.
+
+# 在管理员页面当中显示数据列项（id,  title, content, create_date)
+class BlogAdmin(admin.ModelAdmin):
+
+    # 显示内容
+    list_display = ('id', 'title')
+
+    # 保存事项
+    def save_model(self, request, obj, form, change):
+        return super().save_model(request, obj, form, change)
+
+
+# 所有以上显示操作，必须要注册在这里
+admin.site.register(Blog_list, BlogAdmin)
+
+
+
+
+
+10、在templates里面创建两个HTML文件：
+base.html 和 list.html
+
+
+在应用blog中创建模板目录templates，同时创建基本模板页：base.html和显示内容页：showlist.html
+[base.html]
+<h1 style="margin:auto; width=50%">工贸留言板</h1>
+
+<p></p>
+
+{% block content %}
+
+{% endblock  %}
+
+
+[showlist.html]
+{% extends "base.html" %}
+
+{% block content %}
+    大家欢迎来到工贸吹水地带，留下你想吹的水吧
+
+    {% if guest_list %}
+        <ul>
+        {% for item in guest_list %}
+            <li><a href="/guest_details/{{ item.id }}" style="color:blue">{{ item.title }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+    {% endif %}
+
+{% endblock  %}
+
+
+8. 在应用blog中找到views.py，配置一下模板内容请求
+from django.shortcuts import render
+from jobs.models import Guestbook
+from django.shortcuts import loader
+from django.shortcuts import HttpResponse
+
+def Bloglist(request):
+    guest_list = Blog.objects.order_by('create_date')
+    template = loader.get_template('showlist.html')
+    context = {'bloglist' : blogist}
+
+
+    return HttpResponse(template.render(context))
+
+9. 在应用blog里创建路由文件urls.py，并设置显示模板网页
+from django.urls import path
+from jobs import views
+
+urlpatterns = [
+    path("showlist/", views.Bloglist, name="blog")
+]
+
+
+10. 在应用blog里的管理员admin.py文件中，打开相关的模型应用
+from jobs.models import Blog
+
+admin.site.register(Blog, )
+
+      
+
+
+
+
+
+
+
+
+
+
+
+

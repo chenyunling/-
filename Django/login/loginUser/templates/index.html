@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户管理</title>
+</head>
+<body>
+    <ul>
+        <li><a href="{% url 'index' %}">首页</a></li>
+        <li><a href="{% url 'add' %}">添加</a></li>
+        <li><a href="">关于我们</a></li>
+    </ul>
+    <h3>用户列表</h3>
+    <table>
+        <tr>
+            <th>序号</th>
+            <th>名字</th>
+            <th>操作</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>《<a href="{% url 'update' user.id %}">更新</a>》《<a href='{% url 'detail' user.id %}'>详情</a>》</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>更新用户</title>
+</head>
+<body>
+    <h3>更新信息</h3>
+    {% if tips %}
+        <p>{{ tips }}</p>
+    {% endif %}
+    <form action="{% url 'updateOK' %}" method="post">{% csrf_token %}
+        账号：<input type="text" name="username" id="username" value="{{ user.username }}" required readonly>
+        密码：<input type="text" name="password" id="password" value="{{ user.password }}" required>
+        <input type="submit" value="提交更新">
+        <a href="{% url 'index' %}">返回首页</a>
+    </form>
+</body>
+</html>
